@@ -1,0 +1,41 @@
+<!-- app/templates/dashboard.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h1>Dashboard - Tecnologías Chapinas</h1>
+        <p>Sistema de gestión de infraestructura en la nube</p>
+
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Configuración</h5>
+                        <p class="card-text">Enviar mensajes de configuración XML</p>
+                        <a href="{% url 'configuracion' %}" class="btn btn-primary">Ir a Configuración</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Consumo</h5>
+                        <p class="card-text">Registrar consumos de recursos</p>
+                        <a href="{% url 'consumo' %}" class="btn btn-primary">Ir a Consumo</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Operaciones</h5>
+                        <p class="card-text">Gestionar datos del sistema</p>
+                        <a href="{% url 'consultar' %}" class="btn btn-primary">Ver Operaciones</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

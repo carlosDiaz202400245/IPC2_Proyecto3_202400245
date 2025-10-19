@@ -1,0 +1,132 @@
+
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-10 mx-auto">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h3>Detalle de Factura #{{ factura.numero_factura }}</h3>
+                <div>
+                    <a href="{% url 'detalle_factura' factura.id %}?format=pdf" class="btn btn-danger">
+                        Descargar PDF
+                    </a>
+                    <a href="{% url 'facturacion' %}" class="btn btn-secondary">Volver</a>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Información de la Factura -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h5>Información de la Factura</h5>
+                        <table class="table table-bordered">
+                            <tr>
+                                <th>Número de Factura:</th>
+                                <td>{{ factura.numero_factura }}</td>
+                            </tr>
+                            <tr>
+                                <th>NIT Cliente:</th>
+                                <td>{{ factura.nit_cliente }}</td>
+                            </tr>
+                            <tr>
+                                <th>Fecha de Factura:</th>
+                                <td>{{ factura.fecha_factura }}</td>
+                            </tr>
+                            <tr>
+                                <th>Monto Total:</th>
+                                <td><strong>Q{{ factura.monto|floatformat:2 }}</strong></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Información del Cliente</h5>
+                        <table class="table table-bordered">
+                            <tr>
+                                <th>Nombre:</th>
+                                <td>{{ factura.nombre_cliente }}</td>
+                            </tr>
+                            <tr>
+                                <th>Dirección:</th>
+                                <td>{{ factura.direccion_cliente }}</td>
+                            </tr>
+                            <tr>
+                                <th>Email:</th>
+                                <td>{{ factura.email_cliente }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Detalle por Instancias -->
+                <h5>Detalle por Instancias</h5>
+                {% for instancia in factura.instancias %}
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <strong>Instancia: {{ instancia.nombre }}</strong>
+                        (Configuración: {{ instancia.configuracion }})
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Tiempo Total Consumido:</strong> {{ instancia.tiempo_total }} horas</p>
+                        <p><strong>Costo Instancia:</strong> Q{{ instancia.costo_total|floatformat:2 }}</p>
+
+                        <h6>Detalle de Recursos:</h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Recurso</th>
+                                        <th>Tipo</th>
+                                        <th>Cantidad</th>
+                                        <th>Valor por Hora</th>
+                                        <th>Horas Usadas</th>
+                                        <th>Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for recurso in instancia.recursos %}
+                                    <tr>
+                                        <td>{{ recurso.nombre }}</td>
+                                        <td>{{ recurso.tipo }}</td>
+                                        <td>{{ recurso.cantidad }}</td>
+                                        <td>Q{{ recurso.valor_hora }}</td>
+                                        <td>{{ recurso.horas_usadas }}</td>
+                                        <td>Q{{ recurso.subtotal|floatformat:2 }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                                <tfoot>
+                                    <tr class="table-active">
+                                        <td colspan="5" class="text-end"><strong>Total Instancia:</strong></td>
+                                        <td><strong>Q{{ instancia.costo_total|floatformat:2 }}</strong></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+
+                <!-- Resumen Final -->
+                <div class="row mt-4">
+                    <div class="col-md-6 offset-md-6">
+                        <table class="table table-bordered">
+                            <tr>
+                                <th>Subtotal:</th>
+                                <td>Q{{ factura.subtotal|floatformat:2 }}</td>
+                            </tr>
+                            <tr>
+                                <th>IVA (12%):</th>
+                                <td>Q{{ factura.iva|floatformat:2 }}</td>
+                            </tr>
+                            <tr class="table-active">
+                                <th><strong>Total a Pagar:</strong></th>
+                                <td><strong>Q{{ factura.monto|floatformat:2 }}</strong></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,100 @@
+<!-- app/templates/reportes/analisis_ventas.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h3>Análisis de Ventas</h3>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label for="tipo" class="form-label">Tipo de Análisis</label>
+                            <select class="form-select" id="tipo" name="tipo" required>
+                                <option value="categorias">Categorías y Configuraciones</option>
+                                <option value="recursos">Recursos</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="fecha_inicio" class="form-label">Fecha Inicio</label>
+                            <input type="date" class="form-control" id="fecha_inicio" name="fecha_inicio" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="fecha_fin" class="form-label">Fecha Fin</label>
+                            <input type="date" class="form-control" id="fecha_fin" name="fecha_fin" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">&nbsp;</label>
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary">Generar Análisis</button>
+                                <button type="submit" name="generar_pdf" value="true" class="btn btn-danger">Descargar PDF</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                {% if datos %}
+                <div class="mt-4">
+                    <h4>Resultados del Análisis ({{ tipo }})</h4>
+                    <p class="text-muted">Período: {{ fecha_inicio }} al {{ fecha_fin }}</p>
+
+                    {% if tipo == 'categorias' %}
+                        <!-- Gráfico/Table para categorías -->
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Categoría</th>
+                                        <th>Configuración</th>
+                                        <th>Total Ingresos</th>
+                                        <th>Porcentaje</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in datos %}
+                                    <tr>
+                                        <td>{{ item.categoria }}</td>
+                                        <td>{{ item.configuracion }}</td>
+                                        <td>Q{{ item.ingresos|floatformat:2 }}</td>
+                                        <td>{{ item.porcentaje|floatformat:1 }}%</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <!-- Gráfico para recursos -->
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Recurso</th>
+                                        <th>Tipo</th>
+                                        <th>Total Ingresos</th>
+                                        <th>Porcentaje</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in datos %}
+                                    <tr>
+                                        <td>{{ item.recurso }}</td>
+                                        <td>{{ item.tipo }}</td>
+                                        <td>Q{{ item.ingresos|floatformat:2 }}</td>
+                                        <td>{{ item.porcentaje|floatformat:1 }}%</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

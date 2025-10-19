@@ -1,0 +1,66 @@
+<!-- app/templates/operaciones/facturacion.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h3>Proceso de Facturación</h3>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-md-5">
+                            <label for="fecha_inicio" class="form-label">Fecha Inicio</label>
+                            <input type="date" class="form-control" id="fecha_inicio" name="fecha_inicio" required>
+                        </div>
+                        <div class="col-md-5">
+                            <label for="fecha_fin" class="form-label">Fecha Fin</label>
+                            <input type="date" class="form-control" id="fecha_fin" name="fecha_fin" required>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">&nbsp;</label>
+                            <button type="submit" class="btn btn-primary w-100">Generar Facturas</button>
+                        </div>
+                    </div>
+                </form>
+
+                {% if facturas %}
+                <div class="mt-4">
+                    <h4>Facturas Generadas</h4>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Número de Factura</th>
+                                    <th>NIT Cliente</th>
+                                    <th>Fecha Factura</th>
+                                    <th>Monto a Pagar</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for factura in facturas %}
+                                <tr>
+                                    <td>{{ factura.numero_factura }}</td>
+                                    <td>{{ factura.nit_cliente }}</td>
+                                    <td>{{ factura.fecha_factura }}</td>
+                                    <td>Q{{ factura.monto|floatformat:2 }}</td>
+                                    <td>
+                                        <a href="{% url 'detalle_factura' factura.id %}" class="btn btn-sm btn-info">Ver Detalle</a>
+                                        <a href="{% url 'detalle_factura' factura.id %}?format=pdf" class="btn btn-sm btn-danger">PDF</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

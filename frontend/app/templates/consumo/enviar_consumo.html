@@ -1,0 +1,52 @@
+<!-- app/templates/consumo/enviar_consumo.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h3>Enviar Mensaje de Consumo</h3>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="xml_file" class="form-label">Seleccionar archivo XML de consumo:</label>
+                        <input type="file" class="form-control" id="xml_file" name="xml_file" accept=".xml" required>
+                        <div class="form-text">
+                            El archivo debe contener los consumos de las instancias con tiempos de uso.
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Enviar Consumo</button>
+                    <a href="{% url 'dashboard' %}" class="btn btn-secondary">Cancelar</a>
+                </form>
+
+                {% if data %}
+                <div class="mt-4">
+                    <h5>Resultado del Procesamiento:</h5>
+                    <div class="alert alert-info">
+                        <pre>{{ data|pprint }}</pre>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5>Estructura XML de Consumo</h5>
+            </div>
+            <div class="card-body">
+                <pre><code>&lt;?xml version="1.0"?&gt;
+&lt;listadoConsumos&gt;
+  &lt;consumo nitCliente="12345-6" idInstancia="1"&gt;
+    &lt;tiempo&gt;5.5&lt;/tiempo&gt;
+    &lt;fechahora&gt;15/10/2024 14:30&lt;/fechahora&gt;
+  &lt;/consumo&gt;
+&lt;/listadoConsumos&gt;</code></pre>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

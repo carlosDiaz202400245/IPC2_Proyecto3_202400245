@@ -1,0 +1,49 @@
+<!-- app/templates/ayuda/info_estudiante.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h3>Información del Estudiante</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>Datos Personales</h5>
+                        <ul class="list-group">
+                            <li class="list-group-item">
+                                <strong>Nombre:</strong> Carlos Díaz
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Carnet:</strong> 202400245
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Curso:</strong> Introducción a la Programación y Computación 2
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Semestre:</strong> 2S2025
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Proyecto 3</h5>
+                        <div class="alert alert-info">
+                            <strong>Sistema de Gestión Cloud</strong><br>
+                            Tecnologías Chapinas: El Charly, S.A.
+                        </div>
+                        <p>Este proyecto implementa un sistema completo de gestión de infraestructura en la nube con:</p>
+                        <ul>
+                            <li>Backend en Flask</li>
+                            <li>Frontend en Django</li>
+                            <li>Base de datos XML</li>
+                            <li>API REST</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

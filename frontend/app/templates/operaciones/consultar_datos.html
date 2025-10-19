@@ -1,0 +1,119 @@
+<!-- app/templates/operaciones/consultar_datos.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h3>Consultar Datos del Sistema</h3>
+                <div>
+                    <a href="{% url 'inicializar' %}" class="btn btn-danger" onclick="return confirm('¿Está seguro de que desea inicializar el sistema? Se perderán todos los datos.')">
+                        Inicializar Sistema
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Filtros -->
+                <div class="mb-4">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-6">
+                            <label for="tipo" class="form-label">Tipo de Datos:</label>
+                            <select name="tipo" id="tipo" class="form-select" onchange="this.form.submit()">
+                                <option value="all" {% if tipo == 'all' %}selected{% endif %}>Todos los datos</option>
+                                <option value="recursos" {% if tipo == 'recursos' %}selected{% endif %}>Recursos</option>
+                                <option value="categorias" {% if tipo == 'categorias' %}selected{% endif %}>Categorías</option>
+                                <option value="configuraciones" {% if tipo == 'configuraciones' %}selected{% endif %}>Configuraciones</option>
+                                <option value="clientes" {% if tipo == 'clientes' %}selected{% endif %}>Clientes</option>
+                                <option value="instancias" {% if tipo == 'instancias' %}selected{% endif %}>Instancias</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Mostrar datos -->
+                {% if data %}
+                    <!-- Recursos -->
+                    {% if tipo == 'all' or tipo == 'recursos' %}
+                    <div class="mb-4">
+                        <h4>Recursos ({{ data.recursos|length }})</h4>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Nombre</th>
+                                        <th>Abreviatura</th>
+                                        <th>Métrica</th>
+                                        <th>Tipo</th>
+                                        <th>Valor por Hora</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for recurso in data.recursos %}
+                                    <tr>
+                                        <td>{{ recurso.id }}</td>
+                                        <td>{{ recurso.nombre }}</td>
+                                        <td>{{ recurso.abreviatura }}</td>
+                                        <td>{{ recurso.metrica }}</td>
+                                        <td><span class="badge {% if recurso.tipo == 'Hardware' %}bg-primary{% else %}bg-success{% endif %}">{{ recurso.tipo }}</span></td>
+                                        <td>Q{{ recurso.valorXhora }}</td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="6" class="text-center">No hay recursos registrados</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Categorías -->
+                    {% if tipo == 'all' or tipo == 'categorias' %}
+                    <div class="mb-4">
+                        <h4>Categorías ({{ data.categorias|length }})</h4>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Nombre</th>
+                                        <th>Descripción</th>
+                                        <th>Carga de Trabajo</th>
+                                        <th>Configuraciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for categoria in data.categorias %}
+                                    <tr>
+                                        <td>{{ categoria.id }}</td>
+                                        <td>{{ categoria.nombre }}</td>
+                                        <td>{{ categoria.descripcion }}</td>
+                                        <td>{{ categoria.cargaTrabajo }}</td>
+                                        <td>{{ categoria.configuraciones|length }}</td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="5" class="text-center">No hay categorías registradas</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Continuar con más tablas para configuraciones, clientes, instancias -->
+
+                {% else %}
+                    <div class="alert alert-info">
+                        No hay datos disponibles para mostrar.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
