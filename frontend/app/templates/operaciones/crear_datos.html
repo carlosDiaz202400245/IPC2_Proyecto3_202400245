@@ -1,4 +1,4 @@
-<!-- app/templates/operaciones/crear_datos.html -->
+
 {% extends 'base.html' %}
 
 {% block content %}
@@ -28,6 +28,7 @@
                 </ul>
 
                 <div class="tab-content mt-3" id="myTabContent">
+
                     <!-- Formulario Recurso -->
                     <div class="tab-pane fade show active" id="recurso" role="tabpanel">
                         <form method="post">
@@ -35,34 +36,36 @@
                             <input type="hidden" name="tipo" value="recurso">
                             <div class="row g-3">
                                 <div class="col-md-6">
-                                    <label for="id_recurso" class="form-label">ID Recurso</label>
-                                    <input type="number" class="form-control" id="id_recurso" name="id" required>
+                                    <label for="id_recurso" class="form-label">ID Recurso *</label>
+                                    <input type="number" class="form-control" id="id_recurso" name="id" required min="1">
                                 </div>
                                 <div class="col-md-6">
-                                    <label for="nombre_recurso" class="form-label">Nombre</label>
+                                    <label for="nombre_recurso" class="form-label">Nombre *</label>
                                     <input type="text" class="form-control" id="nombre_recurso" name="nombre" required>
                                 </div>
                                 <div class="col-md-4">
-                                    <label for="abreviatura" class="form-label">Abreviatura</label>
-                                    <input type="text" class="form-control" id="abreviatura" name="abreviatura" required>
+                                    <label for="abreviatura" class="form-label">Abreviatura *</label>
+                                    <input type="text" class="form-control" id="abreviatura" name="abreviatura" required maxlength="10">
                                 </div>
                                 <div class="col-md-4">
-                                    <label for="metrica" class="form-label">Métrica</label>
-                                    <input type="text" class="form-control" id="metrica" name="metrica" required>
+                                    <label for="metrica" class="form-label">Métrica *</label>
+                                    <input type="text" class="form-control" id="metrica" name="metrica" required placeholder="ej. unidades, GiB, GB">
                                 </div>
                                 <div class="col-md-4">
-                                    <label for="tipo" class="form-label">Tipo</label>
+                                    <label for="tipo" class="form-label">Tipo *</label>
                                     <select class="form-select" id="tipo" name="tipo" required>
+                                        <option value="">Seleccionar...</option>
                                         <option value="Hardware">Hardware</option>
                                         <option value="Software">Software</option>
                                     </select>
                                 </div>
                                 <div class="col-md-6">
-                                    <label for="valorXhora" class="form-label">Valor por Hora</label>
-                                    <input type="number" step="0.01" class="form-control" id="valorXhora" name="valorXhora" required>
+                                    <label for="valorXhora" class="form-label">Valor por Hora (Q) *</label>
+                                    <input type="number" step="0.01" class="form-control" id="valorXhora" name="valorXhora" required min="0">
                                 </div>
                                 <div class="col-12">
                                     <button type="submit" class="btn btn-primary">Crear Recurso</button>
+                                    <button type="reset" class="btn btn-secondary">Limpiar</button>
                                 </div>
                             </div>
                         </form>
@@ -75,33 +78,296 @@
                             <input type="hidden" name="tipo" value="categoria">
                             <div class="row g-3">
                                 <div class="col-md-6">
-                                    <label for="id_categoria" class="form-label">ID Categoría</label>
-                                    <input type="number" class="form-control" id="id_categoria" name="id" required>
+                                    <label for="id_categoria" class="form-label">ID Categoría *</label>
+                                    <input type="number" class="form-control" id="id_categoria" name="id" required min="1">
                                 </div>
                                 <div class="col-md-6">
-                                    <label for="nombre_categoria" class="form-label">Nombre</label>
+                                    <label for="nombre_categoria" class="form-label">Nombre *</label>
                                     <input type="text" class="form-control" id="nombre_categoria" name="nombre" required>
                                 </div>
                                 <div class="col-12">
                                     <label for="descripcion" class="form-label">Descripción</label>
-                                    <textarea class="form-control" id="descripcion" name="descripcion" rows="3"></textarea>
+                                    <textarea class="form-control" id="descripcion" name="descripcion" rows="3" placeholder="Descripción de la categoría..."></textarea>
                                 </div>
                                 <div class="col-12">
-                                    <label for="cargaTrabajo" class="form-label">Carga de Trabajo</label>
-                                    <input type="text" class="form-control" id="cargaTrabajo" name="cargaTrabajo" required>
+                                    <label for="cargaTrabajo" class="form-label">Carga de Trabajo *</label>
+                                    <input type="text" class="form-control" id="cargaTrabajo" name="cargaTrabajo" required placeholder="ej. Desarrollo, Producción, Pruebas">
                                 </div>
                                 <div class="col-12">
                                     <button type="submit" class="btn btn-primary">Crear Categoría</button>
+                                    <button type="reset" class="btn btn-secondary">Limpiar</button>
                                 </div>
                             </div>
                         </form>
                     </div>
 
-                    <!-- Más formularios para Configuración, Cliente, Instancia -->
+                    <!-- Formulario Configuración -->
+                    <div class="tab-pane fade" id="configuracion" role="tabpanel">
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="tipo" value="configuracion">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="id_configuracion" class="form-label">ID Configuración *</label>
+                                    <input type="number" class="form-control" id="id_configuracion" name="id" required min="1">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="id_categoria_config" class="form-label">ID Categoría *</label>
+                                    <input type="number" class="form-control" id="id_categoria_config" name="idCategoria" required min="1">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="nombre_configuracion" class="form-label">Nombre *</label>
+                                    <input type="text" class="form-control" id="nombre_configuracion" name="nombre" required>
+                                </div>
+                                <div class="col-12">
+                                    <label for="descripcion_config" class="form-label">Descripción</label>
+                                    <textarea class="form-control" id="descripcion_config" name="descripcion" rows="3" placeholder="Descripción de la configuración..."></textarea>
+                                </div>
 
+                                <!-- Recursos de la Configuración -->
+                                <div class="col-12">
+                                    <h5 class="border-bottom pb-2">Recursos de la Configuración</h5>
+                                    <div id="recursos-container">
+                                        <div class="row g-2 recurso-item mb-2">
+                                            <div class="col-md-5">
+                                                <label class="form-label">ID Recurso *</label>
+                                                <input type="number" class="form-control" name="recursos[]" required min="1">
+                                            </div>
+                                            <div class="col-md-5">
+                                                <label class="form-label">Cantidad *</label>
+                                                <input type="number" class="form-control" name="cantidades[]" required min="1">
+                                            </div>
+                                            <div class="col-md-2">
+                                                <label class="form-label">&nbsp;</label>
+                                                <button type="button" class="btn btn-danger btn-sm w-100" onclick="removeRecurso(this)" disabled>×</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm mt-2" onclick="addRecurso()">
+                                        <i class="fas fa-plus"></i> Agregar Recurso
+                                    </button>
+                                    <div class="form-text">Agregue al menos un recurso a la configuración</div>
+                                </div>
+
+                                <div class="col-12">
+                                    <button type="submit" class="btn btn-primary">Crear Configuración</button>
+                                    <button type="reset" class="btn btn-secondary">Limpiar</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Formulario Cliente -->
+                    <div class="tab-pane fade" id="cliente" role="tabpanel">
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="tipo" value="cliente">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="nit_cliente" class="form-label">NIT *</label>
+                                    <input type="text" class="form-control" id="nit_cliente" name="nit"
+                                           pattern="\d+-\d{1}|[K]"
+                                           title="Formato: 12345-6 o 12345678-K"
+                                           required
+                                           placeholder="12345-6">
+                                    <div class="form-text">Formato: 12345-6 o 12345678-K</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="nombre_cliente" class="form-label">Nombre Completo *</label>
+                                    <input type="text" class="form-control" id="nombre_cliente" name="nombre" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="usuario_cliente" class="form-label">Usuario *</label>
+                                    <input type="text" class="form-control" id="usuario_cliente" name="usuario" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="clave_cliente" class="form-label">Clave *</label>
+                                    <input type="password" class="form-control" id="clave_cliente" name="clave" required minlength="4">
+                                </div>
+                                <div class="col-12">
+                                    <label for="direccion_cliente" class="form-label">Dirección</label>
+                                    <textarea class="form-control" id="direccion_cliente" name="direccion" rows="2" placeholder="Dirección física del cliente..."></textarea>
+                                </div>
+                                <div class="col-12">
+                                    <label for="correo_cliente" class="form-label">Correo Electrónico *</label>
+                                    <input type="email" class="form-control" id="correo_cliente" name="correoElectronico" required>
+                                </div>
+                                <div class="col-12">
+                                    <button type="submit" class="btn btn-primary">Crear Cliente</button>
+                                    <button type="reset" class="btn btn-secondary">Limpiar</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Formulario Instancia -->
+                    <div class="tab-pane fade" id="instancia" role="tabpanel">
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="tipo" value="instancia">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="id_instancia" class="form-label">ID Instancia *</label>
+                                    <input type="number" class="form-control" id="id_instancia" name="id" required min="1">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="nit_cliente_instancia" class="form-label">NIT Cliente *</label>
+                                    <input type="text" class="form-control" id="nit_cliente_instancia" name="nitCliente"
+                                           pattern="\d+-\d{1}|[K]"
+                                           title="Formato: 12345-6 o 12345678-K"
+                                           required
+                                           placeholder="12345-6">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="id_configuracion_instancia" class="form-label">ID Configuración *</label>
+                                    <input type="number" class="form-control" id="id_configuracion_instancia" name="idConfiguracion" required min="1">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="nombre_instancia" class="form-label">Nombre Instancia *</label>
+                                    <input type="text" class="form-control" id="nombre_instancia" name="nombre" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="fecha_inicio_instancia" class="form-label">Fecha Inicio *</label>
+                                    <input type="text" class="form-control" id="fecha_inicio_instancia" name="fechaInicio"
+                                           placeholder="dd/mm/yyyy"
+                                           pattern="\d{2}/\d{2}/\d{4}"
+                                           title="Formato: dd/mm/yyyy"
+                                           required>
+                                    <div class="form-text">Formato: dd/mm/yyyy</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="estado_instancia" class="form-label">Estado *</label>
+                                    <select class="form-select" id="estado_instancia" name="estado" required>
+                                        <option value="">Seleccionar...</option>
+                                        <option value="Vigente">Vigente</option>
+                                        <option value="Cancelada">Cancelada</option>
+                                    </select>
+                                </div>
+                                <div class="col-12" id="fecha-final-container" style="display: none;">
+                                    <label for="fecha_final_instancia" class="form-label">Fecha Final *</label>
+                                    <input type="text" class="form-control" id="fecha_final_instancia" name="fechaFinal"
+                                           placeholder="dd/mm/yyyy"
+                                           pattern="\d{2}/\d{2}/\d{4}"
+                                           title="Formato: dd/mm/yyyy">
+                                    <div class="form-text">Obligatorio cuando el estado es Cancelada</div>
+                                </div>
+                                <div class="col-12">
+                                    <button type="submit" class="btn btn-primary">Crear Instancia</button>
+                                    <button type="reset" class="btn btn-secondary">Limpiar</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+// Función para agregar recursos en configuración
+function addRecurso() {
+    const container = document.getElementById('recursos-container');
+    const newRecurso = document.createElement('div');
+    newRecurso.className = 'row g-2 recurso-item mb-2';
+    newRecurso.innerHTML = `
+        <div class="col-md-5">
+            <label class="form-label">ID Recurso *</label>
+            <input type="number" class="form-control" name="recursos[]" required min="1">
+        </div>
+        <div class="col-md-5">
+            <label class="form-label">Cantidad *</label>
+            <input type="number" class="form-control" name="cantidades[]" required min="1">
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">&nbsp;</label>
+            <button type="button" class="btn btn-danger btn-sm w-100" onclick="removeRecurso(this)">×</button>
+        </div>
+    `;
+    container.appendChild(newRecurso);
+
+    // Habilitar botones de eliminar si hay más de un recurso
+    updateRemoveButtons();
+}
+
+function removeRecurso(button) {
+    const item = button.closest('.recurso-item');
+    if (document.querySelectorAll('.recurso-item').length > 1) {
+        item.remove();
+        updateRemoveButtons();
+    }
+}
+
+function updateRemoveButtons() {
+    const items = document.querySelectorAll('.recurso-item');
+    const removeButtons = document.querySelectorAll('.recurso-item .btn-danger');
+
+    if (items.length === 1) {
+        removeButtons[0].disabled = true;
+    } else {
+        removeButtons.forEach(btn => btn.disabled = false);
+    }
+}
+
+// Mostrar/ocultar fecha final según estado
+document.getElementById('estado_instancia').addEventListener('change', function() {
+    const fechaFinalContainer = document.getElementById('fecha-final-container');
+    const fechaFinalInput = document.getElementById('fecha_final_instancia');
+
+    if (this.value === 'Cancelada') {
+        fechaFinalContainer.style.display = 'block';
+        fechaFinalInput.required = true;
+    } else {
+        fechaFinalContainer.style.display = 'none';
+        fechaFinalInput.required = false;
+        fechaFinalInput.value = '';
+    }
+});
+
+// Validación de NIT en tiempo real
+document.addEventListener('DOMContentLoaded', function() {
+    const nitInputs = document.querySelectorAll('input[pattern="\\d+-\\d{1}|[K]"]');
+    nitInputs.forEach(input => {
+        input.addEventListener('blur', function() {
+            const nitPattern = /^\d+-\d{1}$|^\d+-[K]$/;
+            if (this.value && !nitPattern.test(this.value)) {
+                this.setCustomValidity('Formato de NIT inválido. Use: 12345-6 o 12345678-K');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+    });
+});
+
+// Inicializar botones de eliminar
+document.addEventListener('DOMContentLoaded', function() {
+    updateRemoveButtons();
+});
+</script>
+
+<style>
+.recurso-item {
+    padding: 10px;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    background-color: #f8f9fa;
+}
+
+.recurso-item:not(:first-child) {
+    margin-top: 10px;
+}
+
+.form-text {
+    font-size: 0.875em;
+    color: #6c757d;
+}
+
+.nav-tabs .nav-link {
+    font-weight: 500;
+}
+
+.nav-tabs .nav-link.active {
+    font-weight: 600;
+}
+</style>
 {% endblock %}
