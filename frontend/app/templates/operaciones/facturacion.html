@@ -38,7 +38,7 @@
                                     <th>NIT Cliente</th>
                                     <th>Fecha Factura</th>
                                     <th>Monto a Pagar</th>
-                                    <th>Acciones</th>
+
                                 </tr>
                             </thead>
                             <tbody>
@@ -48,10 +48,7 @@
                                     <td>{{ factura.nit_cliente }}</td>
                                     <td>{{ factura.fecha_factura }}</td>
                                     <td>Q{{ factura.monto|floatformat:2 }}</td>
-                                    <td>
-                                        <a href="{% url 'detalle_factura' factura.id %}" class="btn btn-sm btn-info">Ver Detalle</a>
-                                        <a href="{% url 'detalle_factura' factura.id %}?format=pdf" class="btn btn-sm btn-danger">PDF</a>
-                                    </td>
+
                                 </tr>
                                 {% endfor %}
                             </tbody>

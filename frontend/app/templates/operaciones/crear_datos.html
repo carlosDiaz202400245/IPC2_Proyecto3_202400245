@@ -53,7 +53,7 @@
                                 </div>
                                 <div class="col-md-4">
                                     <label for="tipo" class="form-label">Tipo *</label>
-                                    <select class="form-select" id="tipo" name="tipo" required>
+                                    <select class="form-select" id="tipo" name="tipo_recurso" required>
                                         <option value="">Seleccionar...</option>
                                         <option value="Hardware">Hardware</option>
                                         <option value="Software">Software</option>
@@ -166,7 +166,6 @@
                                 <div class="col-md-6">
                                     <label for="nit_cliente" class="form-label">NIT *</label>
                                     <input type="text" class="form-control" id="nit_cliente" name="nit"
-                                           pattern="\d+-\d{1}|[K]"
                                            title="Formato: 12345-6 o 12345678-K"
                                            required
                                            placeholder="12345-6">

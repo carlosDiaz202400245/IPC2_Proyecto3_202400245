@@ -25,11 +25,12 @@ class Configuracion:
     def agregar_recurso(self, recurso_config):
         self.recursos.append(recurso_config)
 
-    def calcular_costo_hora(self, recursos_dict):
+    def calcular_costo_hora(self, recursos_lista):
         """Calcular el costo por hora de esta configuración"""
         costo_total = 0.0
         for recurso_config in self.recursos:
-            recurso = recursos_dict.get(recurso_config.id_recurso)
+            #  BUSCAR EN LA LISTA DIRECTAMENTE
+            recurso = next((r for r in recursos_lista if r.id == recurso_config.id_recurso), None)
             if recurso:
                 costo_total += recurso.valor_x_hora * recurso_config.cantidad
         return costo_total

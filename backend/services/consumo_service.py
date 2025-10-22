@@ -1,7 +1,15 @@
+
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+sys.path.insert(0, parent_dir)
+
+
 import xml.etree.ElementTree as ET
-from backend.models.instancia import Consumo
-from backend.utils.validators import extraer_fecha_hora, validar_nit
-from backend.utils.date_utils import calcular_diferencia_horas
+from models.instancia import Consumo
+from utils.validators import extraer_fecha_hora, validar_nit
 
 
 class ProcesadorConsumo:
@@ -35,46 +43,66 @@ class ProcesadorConsumo:
             nit_cliente = consumo_elem.get('nitCliente')
             id_instancia = int(consumo_elem.get('idInstancia'))
 
+            print(f"DEBUG: Procesando consumo - NIT: {nit_cliente}, Instancia: {id_instancia}")
+
             # Validar NIT
             if not validar_nit(nit_cliente):
-                self.resultados['errores'].append(f"NIT inválido: {nit_cliente}")
+                error_msg = f"NIT inválido: {nit_cliente}"
+                print(f"DEBUG: {error_msg}")
+                self.resultados['errores'].append(error_msg)
                 return
 
             # Buscar la instancia
             instancia = self._buscar_instancia(id_instancia, nit_cliente, db)
             if not instancia:
-                self.resultados['errores'].append(f"Instancia {id_instancia} no encontrada para cliente {nit_cliente}")
+                error_msg = f"Instancia {id_instancia} no encontrada para cliente {nit_cliente}"
+                print(f"DEBUG: {error_msg}")
+                self.resultados['errores'].append(error_msg)
                 return
 
             # Verificar que la instancia esté vigente
             if instancia.estado != "Vigente":
-                self.resultados['errores'].append(f"Instancia {id_instancia} no está vigente")
+                error_msg = f"Instancia {id_instancia} no está vigente"
+                print(f"DEBUG: {error_msg}")
+                self.resultados['errores'].append(error_msg)
                 return
 
             # Extraer tiempo de consumo
             tiempo_elem = consumo_elem.find('tiempo')
             if tiempo_elem is None or not tiempo_elem.text:
-                self.resultados['errores'].append(f"Tiempo de consumo no especificado para instancia {id_instancia}")
+                error_msg = f"Tiempo de consumo no especificado para instancia {id_instancia}"
+                print(f"DEBUG: {error_msg}")
+                self.resultados['errores'].append(error_msg)
                 return
 
             try:
                 tiempo_consumo = float(tiempo_elem.text)
                 if tiempo_consumo <= 0:
-                    self.resultados['errores'].append(f"Tiempo de consumo debe ser positivo: {tiempo_consumo}")
+                    error_msg = f"Tiempo de consumo debe ser positivo: {tiempo_consumo}"
+                    print(f"DEBUG: {error_msg}")
+                    self.resultados['errores'].append(error_msg)
                     return
             except ValueError:
-                self.resultados['errores'].append(f"Tiempo de consumo inválido: {tiempo_elem.text}")
+                error_msg = f"Tiempo de consumo inválido: {tiempo_elem.text}"
+                print(f"DEBUG: {error_msg}")
+                self.resultados['errores'].append(error_msg)
                 return
 
             # Extraer fecha y hora
             fecha_hora_elem = consumo_elem.find('fechahora')
             if fecha_hora_elem is None or not fecha_hora_elem.text:
-                self.resultados['errores'].append(f"Fecha/hora no especificada para instancia {id_instancia}")
+                error_msg = f"Fecha/hora no especificada para instancia {id_instancia}"
+                print(f"DEBUG: {error_msg}")
+                self.resultados['errores'].append(error_msg)
                 return
 
             fecha_hora = extraer_fecha_hora(fecha_hora_elem.text)
+            print(f"DEBUG: Texto fecha/hora: '{fecha_hora_elem.text}' -> Objeto: {fecha_hora}")
+
             if not fecha_hora:
-                self.resultados['errores'].append(f"Fecha/hora inválida: {fecha_hora_elem.text}")
+                error_msg = f"Fecha/hora inválida: {fecha_hora_elem.text}"
+                print(f"DEBUG: {error_msg}")
+                self.resultados['errores'].append(error_msg)
                 return
 
             # Crear y registrar el consumo
@@ -82,9 +110,14 @@ class ProcesadorConsumo:
             instancia.agregar_consumo(consumo)
 
             self.resultados['consumos_procesados'] += 1
+            print(f"DEBUG: Consumo registrado exitosamente para instancia {id_instancia}")
 
         except (AttributeError, ValueError, TypeError) as e:
-            self.resultados['errores'].append(f"Error procesando consumo: {str(e)}")
+            error_msg = f"Error procesando consumo: {str(e)}"
+            print(f"DEBUG: EXCEPCIÓN - {error_msg}")
+            import traceback
+            traceback.print_exc()
+            self.resultados['errores'].append(error_msg)
 
     def _buscar_instancia(self, id_instancia, nit_cliente, db):
         """Buscar una instancia por ID y NIT de cliente"""

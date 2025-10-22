@@ -1,4 +1,4 @@
-<!-- app/templates/operaciones/consultar_datos.html -->
+
 {% extends 'base.html' %}
 
 {% block content %}
@@ -8,9 +8,13 @@
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h3>Consultar Datos del Sistema</h3>
                 <div>
-                    <a href="{% url 'inicializar' %}" class="btn btn-danger" onclick="return confirm('¿Está seguro de que desea inicializar el sistema? Se perderán todos los datos.')">
-                        Inicializar Sistema
-                    </a>
+                    <!-- FORMULARIO PARA INICIALIZAR SISTEMA -->
+                    <form method="post" action="{% url 'inicializar' %}" id="inicializar-form" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="button" class="btn btn-danger" onclick="confirmarInicializacion()">
+                            Inicializar Sistema
+                        </button>
+                    </form>
                 </div>
             </div>
             <div class="card-body">
@@ -20,12 +24,12 @@
                         <div class="col-md-6">
                             <label for="tipo" class="form-label">Tipo de Datos:</label>
                            <select name="tipo" id="tipo" class="form-select" onchange="this.form.submit()">
-                                <option value="all" {% if tipo = 'all' %}selected{% endif %}>Todos los datos</option>
-                                <option value="recursos" {% if tipo = 'recursos' %}selected{% endif %}>Recursos</option>
-                                <option value="categorias" {% if tipo = 'categorias' %}selected{% endif %}>Categorías</option>
-                                <option value="configuraciones" {% if tipo = 'configuraciones' %}selected{% endif %}>Configuraciones</option>
-                                <option value="clientes" {% if tipo = 'clientes' %}selected{% endif %}>Clientes</option>
-                                <option value="instancias" {% if tipo = 'instancias' %}selected{% endif %}>Instancias</option>
+                                <option value="all" {% if tipo == 'all' %}selected{% endif %}>Todos los datos</option>
+                                <option value="recursos" {% if tipo == 'recursos' %}selected{% endif %}>Recursos</option>
+                                <option value="categorias" {% if tipo == 'categorias' %}selected{% endif %}>Categorías</option>
+                                <option value="configuraciones" {% if tipo == 'configuraciones' %}selected{% endif %}>Configuraciones</option>
+                                <option value="clientes" {% if tipo == 'clientes' %}selected{% endif %}>Clientes</option>
+                                <option value="instancias" {% if tipo == 'instancias' %}selected{% endif %}>Instancias</option>
                             </select>
                         </div>
                     </form>
@@ -37,6 +41,7 @@
                     {% if tipo == 'all' or tipo == 'recursos' %}
                     <div class="mb-4">
                         <h4>Recursos ({{ data.recursos|length }})</h4>
+                        {% if data.recursos %}
                         <div class="table-responsive">
                             <table class="table table-striped">
                                 <thead>
@@ -59,14 +64,15 @@
                                         <td><span class="badge {% if recurso.tipo == 'Hardware' %}bg-primary{% else %}bg-success{% endif %}">{{ recurso.tipo }}</span></td>
                                         <td>Q{{ recurso.valorXhora }}</td>
                                     </tr>
-                                    {% empty %}
-                                    <tr>
-                                        <td colspan="6" class="text-center">No hay recursos registrados</td>
-                                    </tr>
                                     {% endfor %}
                                 </tbody>
                             </table>
                         </div>
+                        {% else %}
+                        <div class="alert alert-info">
+                            No hay recursos registrados
+                        </div>
+                        {% endif %}
                     </div>
                     {% endif %}
 
@@ -74,6 +80,7 @@
                     {% if tipo == 'all' or tipo == 'categorias' %}
                     <div class="mb-4">
                         <h4>Categorías ({{ data.categorias|length }})</h4>
+                        {% if data.categorias %}
                         <div class="table-responsive">
                             <table class="table table-striped">
                                 <thead>
@@ -94,26 +101,173 @@
                                         <td>{{ categoria.cargaTrabajo }}</td>
                                         <td>{{ categoria.configuraciones|length }}</td>
                                     </tr>
-                                    {% empty %}
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="alert alert-info">
+                            No hay categorías registradas
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
+                    <!-- Configuraciones -->
+                    {% if tipo == 'all' or tipo == 'configuraciones' %}
+                    <div class="mb-4">
+                        <h4>Configuraciones ({{ data.configuraciones|length }})</h4>
+                        {% if data.configuraciones %}
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
                                     <tr>
-                                        <td colspan="5" class="text-center">No hay categorías registradas</td>
+                                        <th>ID</th>
+                                        <th>Nombre</th>
+                                        <th>Descripción</th>
+                                        <th>Categoría ID</th>
+                                        <th>Recursos</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for config in data.configuraciones %}
+                                    <tr>
+                                        <td>{{ config.id }}</td>
+                                        <td>{{ config.nombre }}</td>
+                                        <td>{{ config.descripcion }}</td>
+                                        <td>{{ config.idCategoria }}</td>
+                                        <td>{{ config.recursos|length }}</td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
                             </table>
                         </div>
+                        {% else %}
+                        <div class="alert alert-info">
+                            No hay configuraciones registradas
+                        </div>
+                        {% endif %}
                     </div>
                     {% endif %}
 
-                    <!-- Continuar con más tablas para configuraciones, clientes, instancias -->
+                    <!-- Clientes -->
+                    {% if tipo == 'all' or tipo == 'clientes' %}
+                    <div class="mb-4">
+                        <h4>Clientes ({{ data.clientes|length }})</h4>
+                        {% if data.clientes %}
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>NIT</th>
+                                        <th>Nombre</th>
+                                        <th>Usuario</th>
+                                        <th>Dirección</th>
+                                        <th>Email</th>
+                                        <th>Instancias</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for cliente in data.clientes %}
+                                    <tr>
+                                        <td>{{ cliente.nit }}</td>
+                                        <td>{{ cliente.nombre }}</td>
+                                        <td>{{ cliente.usuario }}</td>
+                                        <td>{{ cliente.direccion }}</td>
+                                        <td>{{ cliente.correoElectronico }}</td>
+                                        <td>{{ cliente.instancias|length }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="alert alert-info">
+                            No hay clientes registrados
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
+                    <!-- Instancias -->
+                    {% if tipo == 'all' or tipo == 'instancias' %}
+                    <div class="mb-4">
+                        <h4>Instancias ({{ data.instancias|length }})</h4>
+                        {% if data.instancias %}
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Nombre</th>
+                                        <th>Configuración ID</th>
+                                        <th>Cliente NIT</th>
+                                        <th>Fecha Inicio</th>
+                                        <th>Estado</th>
+                                        <th>Fecha Final</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for instancia in data.instancias %}
+                                    <tr>
+                                        <td>{{ instancia.id }}</td>
+                                        <td>{{ instancia.nombre }}</td>
+                                        <td>{{ instancia.idConfiguracion }}</td>
+                                        <td>{{ instancia.nitCliente }}</td>
+                                        <td>{{ instancia.fechaInicio }}</td>
+                                        <td>
+                                            <span class="badge {% if instancia.estado == 'Vigente' %}bg-success{% else %}bg-secondary{% endif %}">
+                                                {{ instancia.estado }}
+                                            </span>
+                                        </td>
+                                        <td>{{ instancia.fechaFinal|default:"-" }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="alert alert-info">
+                            No hay instancias registradas
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
 
                 {% else %}
-                    <div class="alert alert-info">
-                        No hay datos disponibles para mostrar.
+                    <div class="alert alert-warning">
+                        <h5>No hay datos disponibles</h5>
+                        <p class="mb-0">Verifica que el backend esté ejecutándose correctamente.</p>
                     </div>
                 {% endif %}
+
+                <!-- Información de depuración -->
+                <div class="mt-4 p-3 bg-light border rounded">
+                    <h6>Información del Sistema:</h6>
+                    <small>
+                        <strong>Última consulta:</strong> {{ timestamp }}<br>
+                        <strong>Tipo consultado:</strong> {{ tipo }}<br>
+                        <strong>Backend:</strong> {{ BACKEND_URL }}
+                    </small>
+                </div>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+{% block extra_js %}
+<script>
+function confirmarInicializacion() {
+    if (confirm('️¿ESTÁ SEGURO DE QUE DESEA INICIALIZAR EL SISTEMA?\n\nEsta acción ELIMINARÁ TODOS LOS DATOS:\n• Recursos\n• Categorías\n• Configuraciones\n• Clientes\n• Instancias\n• Facturas\n• Consumos\n\nEsta acción NO se puede deshacer.')) {
+        // Mostrar loading
+        const btn = document.querySelector('#inicializar-form button');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Inicializando...';
+        btn.disabled = true;
+
+        // Enviar formulario
+        document.getElementById('inicializar-form').submit();
+    }
+}
+</script>
 {% endblock %}

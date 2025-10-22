@@ -1,4 +1,4 @@
-# app/urls.py
+
 from django.urls import path
 from . import views
 
@@ -13,4 +13,5 @@ urlpatterns = [
     path('reportes/detalle/<int:factura_id>/', views.reporte_detalle_factura, name='detalle_factura'),
     path('reportes/ventas/', views.reporte_analisis_ventas, name='analisis_ventas'),
     path('ayuda/estudiante/', views.info_estudiante, name='info_estudiante'),
+
 ]

@@ -54,16 +54,17 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Efectos de carga para botones
-    const submitButtons = document.querySelectorAll('button[type="submit"], input[type="submit"]');
-    submitButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            if (this.form.checkValidity()) {
-                this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Procesando...';
-                this.disabled = true;
-            }
-        });
+    /*
+const submitButtons = document.querySelectorAll('button[type="submit"], input[type="submit"]');
+submitButtons.forEach(button => {
+    button.addEventListener('click', function() {
+        if (this.form.checkValidity()) {
+            this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Procesando...';
+            this.disabled = true;
+        }
     });
+});
+*/
 
     // Tooltips
     const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));

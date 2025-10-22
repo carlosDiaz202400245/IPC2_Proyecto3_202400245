@@ -13,7 +13,7 @@ def validar_nit(nit):
         return False
 
     # expresion regular
-    patron = r'^\d+-\d|[Kk]$'
+    patron = r'^\d+-[0-9K]$'
     return re.match(patron, nit) is not None
 
 
@@ -107,3 +107,24 @@ def validar_id(id_valor, nombre_entidad=""):
             return False, f"ID de {nombre_entidad} debe ser positivo"
     except (ValueError, TypeError):
         return False, f"ID de {nombre_entidad} debe ser un número entero"
+
+
+def validar_fecha(fecha_str):
+    """
+    Validar que un string representa una fecha válida en formato dd/mm/yyyy
+    Retorna True si es válida, False en caso contrario
+    """
+    if not fecha_str:
+        return False
+
+    try:
+        # Verificar formato básico
+        if not re.match(r'^\d{2}/\d{2}/\d{4}$', fecha_str):
+            return False
+
+        # Parsear y validar la fecha
+        dia, mes, anio = map(int, fecha_str.split('/'))
+        datetime(anio, mes, dia)
+        return True
+    except (ValueError, AttributeError):
+        return False

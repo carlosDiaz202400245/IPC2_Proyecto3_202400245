@@ -13,8 +13,8 @@
                     {% csrf_token %}
                     <div class="row g-3">
                         <div class="col-md-3">
-                            <label for="tipo" class="form-label">Tipo de Análisis</label>
-                            <select class="form-select" id="tipo" name="tipo" required>
+                            <label for="tipo_analisis" class="form-label">Tipo de Análisis</label>
+                            <select class="form-select" id="tipo_analisis" name="tipo_analisis" required>
                                 <option value="categorias">Categorías y Configuraciones</option>
                                 <option value="recursos">Recursos</option>
                             </select>
@@ -39,17 +39,17 @@
 
                 {% if datos %}
                 <div class="mt-4">
-                    <h4>Resultados del Análisis ({{ tipo }})</h4>
+                    <h4>Resultados del Análisis ({{ tipo_analisis }})</h4>
                     <p class="text-muted">Período: {{ fecha_inicio }} al {{ fecha_fin }}</p>
 
-                    {% if tipo == 'categorias' %}
+                    {% if tipo_analisis == 'categorias' %}
                         <!-- Gráfico/Table para categorías -->
                         <div class="table-responsive">
                             <table class="table table-striped">
                                 <thead>
                                     <tr>
                                         <th>Categoría</th>
-                                        <th>Configuración</th>
+                                        <th>Configuraciones</th>
                                         <th>Total Ingresos</th>
                                         <th>Porcentaje</th>
                                     </tr>

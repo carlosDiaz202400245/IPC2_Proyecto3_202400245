@@ -1,3 +1,6 @@
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from services.configuracion_service import ProcesadorConfiguracion
@@ -8,6 +11,11 @@ from utils.validators import validar_nit, extraer_fecha
 import re
 from services.reportes_service import ReportePDFService
 import base64
+from models.recurso import Recurso
+from models.categoria import Categoria
+from models.configuracion import Configuracion, RecursoConfiguracion
+from models.cliente import Cliente
+from models.instancia import Instancia
 
 app = Flask(__name__)
 CORS(app)
@@ -35,6 +43,12 @@ def recibir_configuracion():
     """Procesar mensaje XML de configuración """
     try:
         xml_data = request.data.decode('utf-8')
+
+        # ✅ DEBUG: Mostrar qué hay en la base de datos ANTES de procesar
+        print("🔍 DEBUG - ANTES de procesar:")
+        print(f"Recursos en DB: {[r.id for r in db['recursos']]}")
+        print(f"Categorías en DB: {[c.id for c in db['categorias']]}")
+
         resultado = procesador_config.procesar_xml(xml_data, db)
         guardar_db()  # Persistir cambios
 
@@ -44,8 +58,12 @@ def recibir_configuracion():
         }), 201
 
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        # ✅ DEBUG: Mostrar el error COMPLETO con traceback
+        print(f"🔍 DEBUG - ERROR COMPLETO:")
+        import traceback
+        traceback.print_exc()
 
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/consumo', methods=['POST'])
 def recibir_consumo():
@@ -336,7 +354,7 @@ def generar_factura():
         return jsonify({
             'mensaje': f"{resultado['facturas_generadas']} facturas generadas exitosamente",
             'facturas': resultado['detalle']
-        }), 201
+        }), 200
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -438,15 +456,6 @@ def reset_sistema():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-
-
-from models.recurso import Recurso
-from models.categoria import Categoria
-from models.configuracion import Configuracion, RecursoConfiguracion
-from models.cliente import Cliente
-from models.instancia import Instancia
-
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
 
-import os

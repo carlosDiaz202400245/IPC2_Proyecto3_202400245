@@ -20,17 +20,18 @@ class XMLManager:
 
         for recurso in recursos:
             recurso_elem = ET.SubElement(root, "recurso")
-            recurso_elem.set("id", str(recurso['id']))
+            #Acceder a atributos del objeto
+            recurso_elem.set("id", str(recurso.id))  # ← recurso.id, NO recurso['id']
 
-            ET.SubElement(recurso_elem, "nombre").text = recurso['nombre']
-            ET.SubElement(recurso_elem, "abreviatura").text = recurso['abreviatura']
-            ET.SubElement(recurso_elem, "metrica").text = recurso['metrica']
-            ET.SubElement(recurso_elem, "tipo").text = recurso['tipo']
-            ET.SubElement(recurso_elem, "valorXhora").text = str(recurso['valorXhora'])
+            ET.SubElement(recurso_elem, "nombre").text = recurso.nombre
+            ET.SubElement(recurso_elem, "abreviatura").text = recurso.abreviatura
+            ET.SubElement(recurso_elem, "metrica").text = recurso.metrica
+            ET.SubElement(recurso_elem, "tipo").text = recurso.tipo
+            ET.SubElement(recurso_elem, "valorXhora").text = str(recurso.valor_x_hora)
 
         self._guardar_xml(root, "recursos.xml")
 
-    def cargar_recursos(self):
+    def cargar_recursos(self):  # <-- AGREGA ESTE MÉTODO AQUÍ
         """Cargar recursos desde XML"""
         try:
             tree = ET.parse(os.path.join(self.base_path, "recursos.xml"))
@@ -58,25 +59,26 @@ class XMLManager:
 
         for categoria in categorias:
             categoria_elem = ET.SubElement(root, "categoria")
-            categoria_elem.set("id", str(categoria['id']))
+            # Acceder a atributos del objeto
+            categoria_elem.set("id", str(categoria.id))
 
-            ET.SubElement(categoria_elem, "nombre").text = categoria['nombre']
-            ET.SubElement(categoria_elem, "descripcion").text = categoria['descripcion']
-            ET.SubElement(categoria_elem, "cargaTrabajo").text = categoria['cargaTrabajo']
+            ET.SubElement(categoria_elem, "nombre").text = categoria.nombre
+            ET.SubElement(categoria_elem, "descripcion").text = categoria.descripcion
+            ET.SubElement(categoria_elem, "cargaTrabajo").text = categoria.carga_trabajo
 
             lista_configs = ET.SubElement(categoria_elem, "listaConfiguraciones")
-            for config in categoria.get('configuraciones', []):
+            for config in categoria.configuraciones:  # ← categoria.configuraciones, NO categoria.get('configuraciones')
                 config_elem = ET.SubElement(lista_configs, "configuracion")
-                config_elem.set("id", str(config['id']))
+                config_elem.set("id", str(config.id))
 
-                ET.SubElement(config_elem, "nombre").text = config['nombre']
-                ET.SubElement(config_elem, "descripcion").text = config['descripcion']
+                ET.SubElement(config_elem, "nombre").text = config.nombre
+                ET.SubElement(config_elem, "descripcion").text = config.descripcion
 
                 recursos_config = ET.SubElement(config_elem, "recursosConfiguracion")
-                for recurso in config.get('recursos', []):
+                for recurso_config in config.recursos:  # ← config.recursos, NO config.get('recursos')
                     recurso_elem = ET.SubElement(recursos_config, "recurso")
-                    recurso_elem.set("id", str(recurso['idRecurso']))
-                    recurso_elem.text = str(recurso['cantidad'])
+                    recurso_elem.set("id", str(recurso_config.id_recurso))
+                    recurso_elem.text = str(recurso_config.cantidad)
 
         self._guardar_xml(root, "categorias.xml")
 
@@ -129,26 +131,27 @@ class XMLManager:
 
         for cliente in clientes:
             cliente_elem = ET.SubElement(root, "cliente")
-            cliente_elem.set("nit", cliente['nit'])
+            #  Acceder a atributos del objeto
+            cliente_elem.set("nit", cliente.nit)
 
-            ET.SubElement(cliente_elem, "nombre").text = cliente['nombre']
-            ET.SubElement(cliente_elem, "usuario").text = cliente['usuario']
-            ET.SubElement(cliente_elem, "clave").text = cliente['clave']
-            ET.SubElement(cliente_elem, "direccion").text = cliente['direccion']
-            ET.SubElement(cliente_elem, "correoElectronico").text = cliente['correoElectronico']
+            ET.SubElement(cliente_elem, "nombre").text = cliente.nombre
+            ET.SubElement(cliente_elem, "usuario").text = cliente.usuario
+            ET.SubElement(cliente_elem, "clave").text = cliente.clave
+            ET.SubElement(cliente_elem, "direccion").text = cliente.direccion
+            ET.SubElement(cliente_elem, "correoElectronico").text = cliente.correo_electronico
 
             lista_instancias = ET.SubElement(cliente_elem, "listaInstancias")
-            for instancia in cliente.get('instancias', []):
+            for instancia in cliente.instancias:  # ← cliente.instancias, NO cliente.get('instancias')
                 instancia_elem = ET.SubElement(lista_instancias, "instancia")
-                instancia_elem.set("id", str(instancia['id']))
+                instancia_elem.set("id", str(instancia.id))
 
-                ET.SubElement(instancia_elem, "idConfiguracion").text = str(instancia['idConfiguracion'])
-                ET.SubElement(instancia_elem, "nombre").text = instancia['nombre']
-                ET.SubElement(instancia_elem, "fechaInicio").text = instancia['fechaInicio']
-                ET.SubElement(instancia_elem, "estado").text = instancia['estado']
+                ET.SubElement(instancia_elem, "idConfiguracion").text = str(instancia.id_configuracion)
+                ET.SubElement(instancia_elem, "nombre").text = instancia.nombre
+                ET.SubElement(instancia_elem, "fechaInicio").text = instancia.fecha_inicio
+                ET.SubElement(instancia_elem, "estado").text = instancia.estado
 
-                if instancia['fechaFinal']:
-                    ET.SubElement(instancia_elem, "fechaFinal").text = instancia['fechaFinal']
+                if instancia.fecha_final:  # ← instancia.fecha_final, NO instancia['fechaFinal']
+                    ET.SubElement(instancia_elem, "fechaFinal").text = instancia.fecha_final
 
         self._guardar_xml(root, "clientes.xml")
 
@@ -232,19 +235,19 @@ class XMLManager:
 
         for factura in facturas:
             factura_elem = ET.SubElement(root, "factura")
-            factura_elem.set("id", str(factura['id']))
+            factura_elem.set("id", str(factura.id))
 
-            ET.SubElement(factura_elem, "nitCliente").text = factura['nitCliente']
-            ET.SubElement(factura_elem, "fechaEmision").text = factura['fechaEmision']
-            ET.SubElement(factura_elem, "periodo").text = factura['periodo']
-            ET.SubElement(factura_elem, "montoTotal").text = str(factura['montoTotal'])
+            ET.SubElement(factura_elem, "nitCliente").text = factura.nit_cliente
+            ET.SubElement(factura_elem, "fechaEmision").text = factura.fecha_emision
+            ET.SubElement(factura_elem, "periodo").text = factura.periodo
+            ET.SubElement(factura_elem, "montoTotal").text = str(factura.monto_total)
 
             detalles_elem = ET.SubElement(factura_elem, "detalles")
-            for detalle in factura.get('detalles', []):
+            for detalle in factura.detalles:  # ← factura.detalles, NO factura.get('detalles')
                 detalle_elem = ET.SubElement(detalles_elem, "detalle")
-                ET.SubElement(detalle_elem, "idInstancia").text = str(detalle['idInstancia'])
-                ET.SubElement(detalle_elem, "tiempoTotal").text = str(detalle['tiempoTotal'])
-                ET.SubElement(detalle_elem, "monto").text = str(detalle['monto'])
+                ET.SubElement(detalle_elem, "idInstancia").text = str(detalle.id_instancia)
+                ET.SubElement(detalle_elem, "tiempoTotal").text = str(detalle.tiempo_total)
+                ET.SubElement(detalle_elem, "monto").text = str(detalle.monto)
 
         self._guardar_xml(root, "facturas.xml")
 
@@ -299,16 +302,132 @@ class XMLManager:
         self.guardar_facturas(db['facturas'])
 
     def cargar_todo(self):
-        """Cargar toda la base de datos"""
-        return {
-            'recursos': self.cargar_recursos(),
-            'categorias': self.cargar_categorias(),
-            'clientes': self.cargar_clientes(),
-            'configuraciones': self._extraer_configuraciones(),
-            'instancias': self._extraer_instancias(),
-            'consumos': self.cargar_consumos(),
-            'facturas': self.cargar_facturas()
-        }
+        """Cargar toda la base de datos - versión funcional"""
+        try:
+            # Cargar como diccionarios primero
+            recursos_dict = self.cargar_recursos()
+            categorias_dict = self.cargar_categorias()
+            clientes_dict = self.cargar_clientes()
+            facturas_dict = self.cargar_facturas()
+
+            # Convertir a objetos
+            from models.recurso import Recurso
+            from models.categoria import Categoria
+            from models.configuracion import Configuracion, RecursoConfiguracion
+            from models.cliente import Cliente
+            from models.instancia import Instancia, Consumo
+            from models.factura import Factura, DetalleFactura
+
+            # Convertir recursos
+            recursos = []
+            for recurso_data in recursos_dict:
+                recursos.append(Recurso.from_dict(recurso_data))
+
+            # Convertir categorías
+            categorias = []
+            configuraciones = []
+            for categoria_data in categorias_dict:
+                # Crear categoría sin configuraciones primero
+                categoria = Categoria(
+                    categoria_data['id'],
+                    categoria_data['nombre'],
+                    categoria_data['descripcion'],
+                    categoria_data['cargaTrabajo']
+                )
+                categorias.append(categoria)
+
+                # Convertir configuraciones de esta categoría
+                for config_data in categoria_data.get('configuraciones', []):
+                    configuracion = Configuracion(
+                        config_data['id'],
+                        config_data['nombre'],
+                        config_data['descripcion'],
+                        categoria_data['id']  # id de la categoría padre
+                    )
+
+                    # Agregar recursos a la configuración
+                    for recurso_config_data in config_data.get('recursos', []):
+                        recurso_config = RecursoConfiguracion(
+                            recurso_config_data['idRecurso'],
+                            recurso_config_data['cantidad']
+                        )
+                        configuracion.agregar_recurso(recurso_config)
+
+                    configuraciones.append(configuracion)
+                    categoria.agregar_configuracion(configuracion)
+
+            # Convertir clientes
+            clientes = []
+            instancias = []
+            for cliente_data in clientes_dict:
+                cliente = Cliente(
+                    cliente_data['nit'],
+                    cliente_data['nombre'],
+                    cliente_data['usuario'],
+                    cliente_data['clave'],
+                    cliente_data['direccion'],
+                    cliente_data['correoElectronico']
+                )
+                clientes.append(cliente)
+
+                # Convertir instancias de este cliente
+                for instancia_data in cliente_data.get('instancias', []):
+                    instancia = Instancia(
+                        instancia_data['id'],
+                        instancia_data['idConfiguracion'],
+                        instancia_data['nombre'],
+                        instancia_data['fechaInicio'],
+                        cliente_data['nit']
+                    )
+                    instancia.estado = instancia_data.get('estado', 'Vigente')
+                    instancia.fecha_final = instancia_data.get('fechaFinal')
+
+                    instancias.append(instancia)
+                    cliente.agregar_instancia(instancia)
+
+            # Convertir facturas
+            facturas = []
+            for factura_data in facturas_dict:
+                factura = Factura(
+                    factura_data['id'],
+                    factura_data['nitCliente'],
+                    factura_data['fechaEmision'],
+                    factura_data['periodo']
+                )
+                factura.monto_total = factura_data.get('montoTotal', 0.0)
+
+                for detalle_data in factura_data.get('detalles', []):
+                    detalle = DetalleFactura(
+                        detalle_data['idInstancia'],
+                        detalle_data['tiempoTotal'],
+                        detalle_data['monto']
+                    )
+                    factura.agregar_detalle(detalle)
+
+                facturas.append(factura)
+
+            return {
+                'recursos': recursos,
+                'categorias': categorias,
+                'clientes': clientes,
+                'configuraciones': configuraciones,
+                'instancias': instancias,
+                'consumos': [],  # Por ahora vacío
+                'facturas': facturas
+            }
+
+        except Exception as e:
+            print(f" Error cargando datos: {e}")
+
+            return {
+                'recursos': [],
+                'categorias': [],
+                'clientes': [],
+                'configuraciones': [],
+                'instancias': [],
+                'consumos': [],
+                'facturas': []
+            }
 
     def _extraer_configuraciones(self):
         """Extraer todas las configuraciones de las categorías"""

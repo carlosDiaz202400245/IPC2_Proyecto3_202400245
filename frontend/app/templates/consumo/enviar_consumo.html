@@ -9,7 +9,14 @@
                 <h3>Enviar Mensaje de Consumo</h3>
             </div>
             <div class="card-body">
-                <form method="post" enctype="multipart/form-data">
+                <!-- DEBUG CSRF -->
+                <div style="display: none;" id="debug-info">
+                    <strong>DEBUG CSRF:</strong><br>
+                    Token: {{ csrf_token }}<br>
+                    ¿Token vacío?: {% if not csrf_token %}SÍ{% else %}NO{% endif %}
+                </div>
+
+                <form method="post" enctype="multipart/form-data" id="consumo-form">
                     {% csrf_token %}
                     <div class="mb-3">
                         <label for="xml_file" class="form-label">Seleccionar archivo XML de consumo:</label>
@@ -18,9 +25,17 @@
                             El archivo debe contener los consumos de las instancias con tiempos de uso.
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-primary">Enviar Consumo</button>
+                    <button type="submit" class="btn btn-primary" id="submit-btn">Enviar Consumo</button>
                     <a href="{% url 'dashboard' %}" class="btn btn-secondary">Cancelar</a>
                 </form>
+
+                <!-- Loading indicator -->
+                <div id="loading" class="mt-3" style="display: none;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Procesando...</span>
+                    </div>
+                    <span class="ms-2">Procesando archivo...</span>
+                </div>
 
                 {% if data %}
                 <div class="mt-4">
@@ -33,20 +48,70 @@
             </div>
         </div>
 
-        <div class="card mt-4">
-            <div class="card-header">
-                <h5>Estructura XML de Consumo</h5>
-            </div>
-            <div class="card-body">
-                <pre><code>&lt;?xml version="1.0"?&gt;
-&lt;listadoConsumos&gt;
-  &lt;consumo nitCliente="12345-6" idInstancia="1"&gt;
-    &lt;tiempo&gt;5.5&lt;/tiempo&gt;
-    &lt;fechahora&gt;15/10/2024 14:30&lt;/fechahora&gt;
-  &lt;/consumo&gt;
-&lt;/listadoConsumos&gt;</code></pre>
-            </div>
-        </div>
-    </div>
-</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('consumo-form');
+    const submitBtn = document.getElementById('submit-btn');
+    const loading = document.getElementById('loading');
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        // Show loading
+        submitBtn.disabled = true;
+        loading.style.display = 'block';
+
+        const formData = new FormData();
+        const xmlFile = document.getElementById('xml_file').files[0];
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        if (!xmlFile) {
+            alert('Por favor selecciona un archivo XML');
+            submitBtn.disabled = false;
+            loading.style.display = 'none';
+            return;
+        }
+
+        formData.append('xml_file', xmlFile);
+
+        // Usar la URL correcta - 'consumo' en lugar de 'enviar_consumo'
+        fetch('{% url "consumo" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken,
+            },
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Error en la respuesta del servidor');
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Hide loading
+            submitBtn.disabled = false;
+            loading.style.display = 'none';
+
+            // Show result
+            if (data.mensaje) {
+                alert('Procesamiento completado: ' + data.mensaje);
+            }
+
+            // Reload to show results
+            window.location.reload();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            submitBtn.disabled = false;
+            loading.style.display = 'none';
+            alert('Error al procesar el archivo: ' + error.message);
+        });
+    });
+});
+</script>
 {% endblock %}
