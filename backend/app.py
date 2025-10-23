@@ -17,8 +17,13 @@ from models.configuracion import Configuracion, RecursoConfiguracion
 from models.cliente import Cliente
 from models.instancia import Instancia
 
+
 app = Flask(__name__)
+app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50MB
+app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
 CORS(app)
+
+
 
 # Inicializar servicios
 xml_manager = XMLManager()
@@ -42,9 +47,32 @@ def guardar_db():
 def recibir_configuracion():
     """Procesar mensaje XML de configuración """
     try:
+        #  DEBUG DETALLADO DEL REQUEST
+        print("=" * 60)
+        print(" DEBUG BACKEND - RECIBIENDO CONFIGURACIÓN")
+        print(f" Content-Type: {request.content_type}")
+        print(f" Content-Length: {request.content_length}")
+        print(f" Headers: {dict(request.headers)}")
+        print("=" * 60)
+
         xml_data = request.data.decode('utf-8')
 
-        # ✅ DEBUG: Mostrar qué hay en la base de datos ANTES de procesar
+        #  VERIFICAR INTEGRIDAD DEL XML RECIBIDO
+        print(f" Longitud XML recibido: {len(xml_data)} caracteres")
+        print(f" Primeros 200 chars: {repr(xml_data[:200])}")
+        print(f" Últimos 100 chars: {repr(xml_data[-100:])}")
+
+        #  VERIFICAR SI EL XML ESTÁ COMPLETO
+        if not xml_data.strip().endswith('</archivoConfiguraciones>'):
+            print(" ERROR: XML TRUNCADO EN EL BACKEND")
+            print(f" Final recibido: {repr(xml_data[-50:])}")
+            return jsonify({
+                'error': 'XML incompleto recibido en el backend. El archivo se truncó durante la transmisión.',
+                'longitud_recibida': len(xml_data),
+                'final_recibido': xml_data[-50:]
+            }), 400
+
+        #  DEBUG: Mostrar qué hay en la base de datos ANTES de procesar
         print("🔍 DEBUG - ANTES de procesar:")
         print(f"Recursos en DB: {[r.id for r in db['recursos']]}")
         print(f"Categorías en DB: {[c.id for c in db['categorias']]}")
@@ -58,27 +86,11 @@ def recibir_configuracion():
         }), 201
 
     except Exception as e:
-        # ✅ DEBUG: Mostrar el error COMPLETO con traceback
-        print(f"🔍 DEBUG - ERROR COMPLETO:")
+        #  DEBUG: Mostrar el error COMPLETO con traceback
+        print(f" DEBUG - ERROR COMPLETO:")
         import traceback
         traceback.print_exc()
 
-        return jsonify({'error': str(e)}), 500
-
-@app.route('/consumo', methods=['POST'])
-def recibir_consumo():
-    """Procesar mensaje XML de consumo """
-    try:
-        xml_data = request.data.decode('utf-8')
-        resultado = procesador_consumo.procesar_xml(xml_data, db)
-        guardar_db()  # Persistir cambios
-
-        return jsonify({
-            'mensaje': 'Consumo procesado exitosamente',
-            'resultado': resultado
-        }), 201
-
-    except Exception as e:
         return jsonify({'error': str(e)}), 500
 
 
@@ -444,6 +456,22 @@ def generar_reporte_analitico():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+
+@app.route('/consumo', methods=['POST'])
+def recibir_consumo():
+    """Procesar mensaje XML de consumo """
+    try:
+        xml_data = request.data.decode('utf-8')
+        resultado = procesador_consumo.procesar_xml(xml_data, db)
+        guardar_db()  # Persistir cambios
+
+        return jsonify({
+            'mensaje': 'Consumo procesado exitosamente',
+            'resultado': resultado
+        }), 201
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/reset', methods=['POST'])
 def reset_sistema():

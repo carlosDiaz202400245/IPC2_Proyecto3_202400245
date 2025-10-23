@@ -1,2 +1,54 @@
 <?xml version="1.0" ?>
-<listaCategorias/>
+<listaCategorias>
+  <categoria id="1">
+    <nombre>Categoria 1</nombre>
+    <descripcion>Configuraciones de alta carga</descripcion>
+    <cargaTrabajo>Alta</cargaTrabajo>
+    <listaConfiguraciones>
+      <configuracion id="1">
+        <nombre>C1C1</nombre>
+        <descripcion>Configuración media</descripcion>
+        <recursosConfiguracion/>
+      </configuracion>
+      <configuracion id="2">
+        <nombre>C1C2</nombre>
+        <descripcion>Configuración baja</descripcion>
+        <recursosConfiguracion/>
+      </configuracion>
+    </listaConfiguraciones>
+  </categoria>
+  <categoria id="2">
+    <nombre>Categoria 2</nombre>
+    <descripcion>Configuraciones para aplicaciones gráficas</descripcion>
+    <cargaTrabajo>Media</cargaTrabajo>
+    <listaConfiguraciones>
+      <configuracion id="3">
+        <nombre>C2-C1</nombre>
+        <descripcion>Configuración para renderizado</descripcion>
+        <recursosConfiguracion/>
+      </configuracion>
+      <configuracion id="4">
+        <nombre>C2-C2</nombre>
+        <descripcion>Configuración para diseño gráfico</descripcion>
+        <recursosConfiguracion/>
+      </configuracion>
+    </listaConfiguraciones>
+  </categoria>
+  <categoria id="3">
+    <nombre>Categoria 3</nombre>
+    <descripcion>Configuraciones de servidores de datos</descripcion>
+    <cargaTrabajo>Alta</cargaTrabajo>
+    <listaConfiguraciones>
+      <configuracion id="5">
+        <nombre>Cat3-Conf1</nombre>
+        <descripcion>Servidor SQL empresarial</descripcion>
+        <recursosConfiguracion/>
+      </configuracion>
+      <configuracion id="6">
+        <nombre>Cat3-Conf2</nombre>
+        <descripcion>Servidor de aplicaciones web</descripcion>
+        <recursosConfiguracion/>
+      </configuracion>
+    </listaConfiguraciones>
+  </categoria>
+</listaCategorias>

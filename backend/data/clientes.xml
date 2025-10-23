@@ -1,2 +1,60 @@
 <?xml version="1.0" ?>
-<listaClientes/>
+<listaClientes>
+  <cliente nit="73384-9">
+    <nombre>Prensa Libre</nombre>
+    <usuario>plibre</usuario>
+    <clave>clavePLibre</clave>
+    <direccion>Direccion del cliente</direccion>
+    <correoElectronico>eMailCliente</correoElectronico>
+    <listaInstancias>
+      <instancia id="1">
+        <idConfiguracion>1</idConfiguracion>
+        <nombre>Primera instancia</nombre>
+        <fechaInicio>26/02/2003</fechaInicio>
+        <estado>Vigente</estado>
+      </instancia>
+    </listaInstancias>
+  </cliente>
+  <cliente nit="992929-0">
+    <nombre>Claro</nombre>
+    <usuario>c1ar0</usuario>
+    <clave>claro123</clave>
+    <direccion>Zona 10, Ciudad de Guatemala</direccion>
+    <correoElectronico>claro@example.com</correoElectronico>
+    <listaInstancias>
+      <instancia id="3">
+        <idConfiguracion>3</idConfiguracion>
+        <nombre>Servidor Render Claro</nombre>
+        <fechaInicio>01/03/2022</fechaInicio>
+        <estado>Vigente</estado>
+      </instancia>
+      <instancia id="4">
+        <idConfiguracion>4</idConfiguracion>
+        <nombre>Diseño Gráfico Profesional</nombre>
+        <fechaInicio>15/05/2023</fechaInicio>
+        <estado>Vigente</estado>
+      </instancia>
+    </listaInstancias>
+  </cliente>
+  <cliente nit="32105-2">
+    <nombre>Gasolinera Shell</nombre>
+    <usuario>shell</usuario>
+    <clave>shellpass</clave>
+    <direccion>Zona 3, Guatemala</direccion>
+    <correoElectronico>shell@email.com</correoElectronico>
+    <listaInstancias>
+      <instancia id="5">
+        <idConfiguracion>5</idConfiguracion>
+        <nombre>Servidor SQL Empresarial</nombre>
+        <fechaInicio>01/06/2021</fechaInicio>
+        <estado>Vigente</estado>
+      </instancia>
+      <instancia id="6">
+        <idConfiguracion>6</idConfiguracion>
+        <nombre>Aplicaciones Web Corporativas</nombre>
+        <fechaInicio>10/07/2022</fechaInicio>
+        <estado>Vigente</estado>
+      </instancia>
+    </listaInstancias>
+  </cliente>
+</listaClientes>

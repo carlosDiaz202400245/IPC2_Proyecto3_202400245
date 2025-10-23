@@ -47,7 +47,7 @@ def dashboard(request):
 
 
 def enviar_configuracion(request):
-    """Procesar mensaje XML de configuración - CON DEBUG COMPLETO"""
+    """Procesar mensaje XML de configuración - CON MANEJO DE ARCHIVOS GRANDES"""
     print("=" * 60)
     print(" DEBUG: VISTA enviar_configuracion INICIADA")
     print(f" Método: {request.method}")
@@ -64,15 +64,51 @@ def enviar_configuracion(request):
             if xml_file:
                 print(f" Nombre: {xml_file.name}")
                 print(f" Tamaño: {xml_file.size} bytes")
+
                 # Validar que sea XML
                 if not xml_file.name.endswith('.xml'):
                     print(" Archivo no es XML")
                     messages.error(request, "El archivo debe ser XML")
                     return redirect('configuracion')
 
-                # LEER EL CONTENIDO DEL ARCHIVO
-                xml_content = xml_file.read().decode('utf-8')
-                print(f" Contenido (primeros 500 chars): {xml_content[:500]}...")
+
+                xml_bytes = b""
+                chunk_size = 8192  # 8KB chunks
+
+                for chunk in xml_file.chunks(chunk_size):
+                    xml_bytes += chunk
+
+                # Decodificar UNA SOLA VEZ al final
+                xml_content = xml_bytes.decode('utf-8')
+
+                print("=" * 60)
+                print(" VERIFICACIÓN FINAL DEL ARCHIVO EN FRONTEND")
+                print("=" * 60)
+                print(f" Tamaño en BYTES: {len(xml_bytes)}")
+                print(f" Tamaño en CARACTERES: {len(xml_content)}")
+                print(f" PRIMEROS 50 chars: {repr(xml_content[:50])}")
+                print(f" ÚLTIMOS 50 chars: {repr(xml_content[-50:])}")
+                print(f" ¿Termina correctamente?: {xml_content.strip().endswith('</archivoConfiguraciones>')}")
+                print("=" * 60)
+                # **VALIDAR INTEGRIDAD DEL XML**
+                if not xml_content.strip().endswith('</archivoConfiguraciones>'):
+                    print(" ERROR: XML truncado o incompleto")
+                    print(f" Final del archivo: {xml_content[-50:]}")
+                    messages.error(request, "El archivo XML está incompleto o corrupto")
+                    return render(request, 'configuracion/enviar_configuracion.html', {
+                        'error': 'El archivo XML está incompleto. Verifique que no se haya cortado durante la subida.'
+                    })
+
+                # Intentar parsear para validar estructura
+                try:
+                    ET.fromstring(xml_content)
+                    print(" XML válido - estructura correcta")
+                except ET.ParseError as e:
+                    print(f" ERROR DE PARSEO XML: {e}")
+                    messages.error(request, f"Error en la estructura XML: {str(e)}")
+                    return render(request, 'configuracion/enviar_configuracion.html', {
+                        'error': f'Error en la estructura XML: {str(e)}'
+                    })
 
                 # ENVIAR AL BACKEND
                 headers = {
@@ -84,14 +120,45 @@ def enviar_configuracion(request):
                 print(f"🔗 Enviando a: {backend_url}")
 
                 try:
-                    print(" Iniciando request al backend...")
-                    response = requests.post(
-                        backend_url,
-                        data=xml_content,
-                        headers=headers,
-                        timeout=30
+                    print(" Iniciando request al backend para archivo grande...")
+
+                    # Crear sesión con configuración optimizada
+                    session = requests.Session()
+
+                    # Configurar adapter con buffers más grandes
+                    from requests.adapters import HTTPAdapter
+
+                    adapter = HTTPAdapter(
+                        pool_connections=100,
+                        pool_maxsize=100,
+                        max_retries=3,
+                        pool_block=True
                     )
 
+                    session.mount("http://", adapter)
+                    session.mount("https://", adapter)
+
+                    #  HEADERS ESPECÍFICOS para xmls grandes como los de prueba
+                    headers = {
+                        'Content-Type': 'application/xml; charset=utf-8',
+                        'Accept': 'application/json',
+                        'Content-Length': str(len(xml_content.encode('utf-8'))),
+                        'Connection': 'keep-alive'
+                    }
+
+                    print(f" Enviando {len(xml_content)} caracteres ({len(xml_content.encode('utf-8'))} bytes)")
+
+                    #  ENVÍO CON CONFIGURACIÓN MEJORADA
+                    response = session.post(
+                        backend_url,
+                        data=xml_content.encode('utf-8'),
+                        headers=headers,
+                        timeout=120,
+                        verify=False,
+                        stream=True  #  Usar streaming para archivos grandes
+                    )
+
+                    print(f" Request completado. Status: {response.status_code}")
                     print("=" * 50)
                     print(" RESPUESTA DEL BACKEND:")
                     print(f" Status Code: {response.status_code}")
@@ -153,16 +220,16 @@ def enviar_configuracion(request):
                     })
 
                 except requests.exceptions.Timeout as e:
-                    error_msg = " Timeout: El backend tardó más de 30 segundos en responder"
+                    error_msg = " Timeout: El backend tardó más de 60 segundos en responder"
                     print(f" Timeout: {e}")
                     messages.error(request, error_msg)
                     return render(request, 'configuracion/enviar_configuracion.html', {
                         'error': error_msg
                     })
 
-                except Exception as e:
-                    error_msg = f" Error de conexión: {str(e)}"
-                    print(f" Exception: {e}")
+                except requests.exceptions.RequestException as e:
+                    error_msg = f"🔌 Error de conexión: {str(e)}"
+                    print(f" RequestException: {e}")
                     messages.error(request, error_msg)
                     return render(request, 'configuracion/enviar_configuracion.html', {
                         'error': error_msg
@@ -170,7 +237,23 @@ def enviar_configuracion(request):
 
             else:
                 print(" No se recibió archivo")
-                messages.error(request, "❌ No se seleccionó ningún archivo")
+                messages.error(request, " No se seleccionó ningún archivo")
+
+        except UnicodeDecodeError as e:
+            error_msg = " Error de codificación: El archivo no está en UTF-8 válido"
+            print(f" UnicodeDecodeError: {e}")
+            messages.error(request, error_msg)
+            return render(request, 'configuracion/enviar_configuracion.html', {
+                'error': error_msg
+            })
+
+        except MemoryError as e:
+            error_msg = "Error de memoria: El archivo es demasiado grande"
+            print(f" MemoryError: {e}")
+            messages.error(request, error_msg)
+            return render(request, 'configuracion/enviar_configuracion.html', {
+                'error': error_msg
+            })
 
         except Exception as e:
             error_msg = f" Error procesando archivo: {str(e)}"
@@ -181,7 +264,7 @@ def enviar_configuracion(request):
             })
 
     else:
-        print("📋 Método GET - Mostrando formulario")
+        print(" Método GET - Mostrando formulario")
 
     return render(request, 'configuracion/enviar_configuracion.html')
 
@@ -451,7 +534,7 @@ def proceso_facturacion(request):
                         # Convertir las facturas al formato que espera el template
                         facturas_formateadas = []
                         for factura in facturas_backend:
-                            print(f"🔍 DEBUG - Procesando factura: {factura}")
+                            print(f" DEBUG - Procesando factura: {factura}")
                             factura_formateada = {
                                 'id': factura.get('id'),
                                 'numero_factura': f"FACT-{factura.get('id', '')}",
@@ -464,8 +547,8 @@ def proceso_facturacion(request):
                             }
                             facturas_formateadas.append(factura_formateada)
 
-                        print(f"🔍 DEBUG - Facturas formateadas: {facturas_formateadas}")
-                        messages.success(request, f"✅ {len(facturas_formateadas)} facturas generadas exitosamente")
+                        print(f" DEBUG - Facturas formateadas: {facturas_formateadas}")
+                        messages.success(request, f" {len(facturas_formateadas)} facturas generadas exitosamente")
 
                         return render(request, 'operaciones/facturacion.html', {
                             'facturas': facturas_formateadas,
@@ -473,8 +556,8 @@ def proceso_facturacion(request):
                             'fecha_fin': fecha_fin
                         })
                     else:
-                        print("🔍 DEBUG - No se encontraron facturas en la respuesta")
-                        messages.info(request, "ℹ️ No se generaron facturas para el período seleccionado")
+                        print(" DEBUG - No se encontraron facturas en la respuesta")
+                        messages.info(request, "ℹ No se generaron facturas para el período seleccionado")
                         return render(request, 'operaciones/facturacion.html', {
                             'facturas': [],
                             'fecha_inicio': fecha_inicio,
@@ -619,7 +702,7 @@ def reporte_analisis_ventas(request):
 
                 if isinstance(reporte_data, dict) and 'mensaje' in reporte_data:
                     info_msg = reporte_data['mensaje']
-                    print(f"ℹ️ Mensaje del backend: {info_msg}")
+                    print(f" Mensaje del backend: {info_msg}")
                     messages.info(request, info_msg)
                     return render(request, 'reportes/analisis_ventas.html', {
                         'datos': [],
